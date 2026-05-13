@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Control de Fuerza grupal | Sentadilla, Hip Thrust, Press Militar, Press Banca</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', 'Roboto', sans-serif;
+        }
+        body {
+            background: #eef2f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            padding: 20px 24px 32px;
+        }
+        h1, h2 {
+            color: #1e2f4e;
+            margin-top: 0;
+        }
+        .flex-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: flex-end;
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #e2edf2;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+        }
+        .card-title {
+            font-weight: 600;
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+            border-left: 5px solid #2c7da0;
+            padding-left: 12px;
+            color: #1f5068;
+        }
+        label {
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: #2c3e66;
+            display: block;
+            margin-bottom: 4px;
+        }
+        input, select, button {
+            padding: 8px 12px;
+            border-radius: 14px;
+            border: 1px solid #cbd5e1;
+            font-size: 0.9rem;
+            background: white;
+        }
+        button {
+            background: #2c7da0;
+            color: white;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button:hover {
+            background: #1f5e7a;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #2c7da0;
+            color: #2c7da0;
+        }
+        .btn-outline:hover {
+            background: #eef5f9;
+        }
+        .btn-danger {
+            background: #b33;
+            border-color: #b33;
+        }
+        .btn-danger:hover {
+            background: #8b2a2a;
+        }
+        .person-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 20px;
+            background: #f8fafc;
+            padding: 12px 16px;
+            border-radius: 40px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            font-size: 0.85rem;
+        }
+        th, td {
+            border-bottom: 1px solid #e2edf2;
+            padding: 12px 6px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        th {
+            background: #f0f6fa;
+            font-weight: 600;
+            color: #1a465b;
+        }
+        .week-nav {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin: 20px 0 10px;
+        }
+        .badge {
+            background: #e9ecef;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-weight: 500;
+        }
+        input.small-input {
+            width: 70px;
+            text-align: center;
+        }
+        .save-msg {
+            font-size: 0.8rem;
+            color: #2c7da0;
+            margin-top: 8px;
+            text-align: right;
+        }
+        @media (max-width: 700px) {
+            th, td {
+                font-size: 0.75rem;
+                padding: 8px 3px;
+            }
+            input.small-input {
+                width: 55px;
+            }
+            .container {
+                padding: 16px;
+            }
+        }
+        footer {
+            text-align: center;
+            margin-top: 32px;
+            font-size: 0.75rem;
+            color: #6c86a3;
+        }
+        .person-list {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🏋️ Control de Fuerza grupal</h1>
+    <p>Sentadilla · Hip Thrust (Haka) · Press militar · Press banca</p>
+
+    <!-- Selector de personas -->
+    <div class="card">
+        <div class="card-title">👥 Personas / Atletas</div>
+        <div class="person-selector">
+            <div class="person-list" id="personListContainer"></div>
+            <div class="flex-row" style="gap: 8px;">
+                <input type="text" id="newPersonName" placeholder="Nueva persona" style="width: 140px;">
+                <button id="addPersonBtn">➕ Añadir</button>
+            </div>
+        </div>
+        <div id="personMessage" style="font-size:0.75rem; color:#2c7da0;"></div>
+    </div>
+
+    <!-- Configuración de la persona actual (1RM) -->
+    <div class="card" id="configCard">
+        <div class="card-title">📊 1RM actual (kg) – Carga máxima 1 repetición</div>
+        <div class="flex-row" style="gap: 20px; flex-wrap: wrap;">
+            <div><label>🏋️ Sentadilla</label><input type="number" id="rm_squat" step="2.5" value="100"></div>
+            <div><label>🍑 Hip Thrust (Haka)</label><input type="number" id="rm_hipthrust" step="2.5" value="120"></div>
+            <div><label>🏋️‍♂️ Press militar</label><input type="number" id="rm_military" step="2.5" value="50"></div>
+            <div><label>🏋️ Press banca</label><input type="number" id="rm_bench" step="2.5" value="80"></div>
+            <div><button id="generarPlanBtn">✨ Generar/Reiniciar plan (8 semanas)</button></div>
+        </div>
+        <p class="save-msg">⚠️ Al generar nuevo plan se borrará el progreso de esta persona. Guarda notas si quieres.</p>
+    </div>
+
+    <!-- Navegación semanal y tabla de trabajo -->
+    <div class="card">
+        <div class="card-title">📆 Semana actual</div>
+        <div class="week-nav">
+            <button id="prevWeekBtn" class="btn-outline">◀ Semana anterior</button>
+            <span id="semanaDisplay" class="badge">Semana 1</span>
+            <button id="nextWeekBtn" class="btn-outline">Semana siguiente ▶</button>
+            <button id="resetPersonDataBtn" class="btn-outline" style="background:#b33; color:white;">🗑️ Reiniciar datos de esta persona</button>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table id="trainingTable">
+                <thead>
+                    <tr><th>Ejercicio</th><th>Series</th><th>Reps plan</th><th>Peso plan (kg)</th><th>¿Completado?</th><th>Peso real</th><th>Reps reales</th><th>RPE (1-10)</th><th>Notas</th></tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+        <div class="save-msg" id="autoSaveMsg">✅ Todos los cambios se guardan automáticamente por persona</div>
+    </div>
+    <footer>
+        🔄 Si marcas "No" (fallo) en una semana, las semanas siguientes bajan el peso planificado automáticamente.<br>
+        Progresión: piernas +5kg/semana, presses +2.5kg/semana. Semanas 4 y 8 = descarga al 65% del 1RM.
+    </footer>
+</div>
+
+<script>
+    // ---------- CONSTANTES ----------
+    const EXERCISES = [
+        { id: "squat", name: "Sentadilla", tipo: "lower" },
+        { id: "hipthrust", name: "Hip Thrust (Haka)", tipo: "lower" },
+        { id: "military", name: "Press militar", tipo: "upper" },
+        { id: "bench", name: "Press banca", tipo: "upper" }
+    ];
+    const TOTAL_WEEKS = 8;
+
+    // Estructura global de datos
+    let personas = {};      // { "nombre": { rm: {squat, hipthrust...}, plan: [] , currentWeek } }
+    let currentPerson = null;
+
+    // Referencias DOM
+    const personListContainer = document.getElementById("personListContainer");
+    const rmSquat = document.getElementById("rm_squat");
+    const rmHip = document.getElementById("rm_hipthrust");
+    const rmMilitary = document.getElementById("rm_military");
+    const rmBench = document.getElementById("rm_bench");
+    const generarBtn = document.getElementById("generarPlanBtn");
+    const prevWeekBtn = document.getElementById("prevWeekBtn");
+    const nextWeekBtn = document.getElementById("nextWeekBtn");
+    const resetPersonBtn = document.getElementById("resetPersonDataBtn");
+    const semanaDisplay = document.getElementById("semanaDisplay");
+    const tableBody = document.getElementById("tableBody");
+    const autoSaveMsg = document.getElementById("autoSaveMsg");
+
+    // ---------- FUNCIONES DE GENERACIÓN DE PLAN ----------
+    function generarPlanDesdeRM(rm) {
+        const weeks = [];
+        for (let w = 1; w <= TOTAL_WEEKS; w++) {
+            const weekExercises = [];
+            for (let ex of EXERCISES) {
+                const rmValue = rm[ex.id];
+                let plannedWeight = 0;
+                let plannedReps = 5;
+                let plannedSets = 4;
+                const isDeload = (w === 4 || w === 8);
+                
+                if (isDeload) {
+                    plannedWeight = Math.round((rmValue * 0.65) / 2.5) * 2.5;
+                    plannedReps = 8;
+                    plannedSets = 3;
+                } else {
+                    let factor = 0.72 + (w-1) * 0.022;
+                    let pesoBase = rmValue * factor;
+                    plannedWeight = Math.round(pesoBase / 2.5) * 2.5;
+                    if (plannedWeight > rmValue * 0.95) plannedWeight = Math.round((rmValue * 0.95) / 2.5) * 2.5;
+                    
+                    if (w >= 5 && w <= 7) {
+                        plannedReps = 3;
+                        plannedSets = 5;
+                    } else {
+                        plannedReps = 5;
+                        plannedSets = 4;
+                    }
+                }
+                weekExercises.push({
+                    id: ex.id,
+                    name: ex.name,
+                    tipo: ex.tipo,
+                    plannedSets: plannedSets,
+                    plannedReps: plannedReps,
+                    plannedWeight: plannedWeight,
+                    completed: null,
+                    actualWeight: null,
+                    actualReps: null,
+                    rpe: null,
+                    notes: ""
+                });
+            }
+            weeks.push({ weekNumber: w, exercises: weekExercises });
+        }
+        return weeks;
+    }
+
+    // Ajustar semanas futuras según fallos previos (hasta la semana actual - 1)
+    function ajustarPlanPorFallos(plan, rmValues, hastaSemana) {
+        for (let ex of EXERCISES) {
+            let ajusteTotal = 0;
+            for (let w = 0; w < hastaSemana - 1; w++) {
+                const ejercicioSemana = plan[w].exercises.find(e => e.id === ex.id);
+                if (ejercicioSemana && ejercicioSemana.completed === false) {
+                    ajusteTotal += (ex.tipo === 'lower' ? 5 : 2.5);
+                }
+            }
+            if (ajusteTotal > 0) {
+                for (let w = hastaSemana - 1; w < plan.length; w++) {
+                    const ejercicio = plan[w].exercises.find(e => e.id === ex.id);
+                    if (ejercicio) {
+                        let nuevoPeso = ejercicio.plannedWeight - ajusteTotal;
+                        const rmActual = rmValues[ex.id];
+                        const minimo = Math.round((rmActual * 0.45) / 2.5) * 2.5;
+                        if (nuevoPeso < minimo) nuevoPeso = minimo;
+                        ejercicio.plannedWeight = Math.round(nuevoPeso / 2.5) * 2.5;
+                        if (!ejercicio.notes.includes("Ajuste")) {
+                            ejercicio.notes = `Ajustado -${ajusteTotal}kg por fallo previo`;
+                        }
+                    }
+                }
+            }
+        }
+        return plan;
+    }
+
+    // Guardar TODAS las personas en localStorage
+    function guardarTodosLosDatos() {
+        const dataToStore = {
+            personas: personas,
+            currentPerson: currentPerson
+        };
+        localStorage.setItem("fuerzaMultiPersonas", JSON.stringify(dataToStore));
+        showSaveMsg();
+    }
+
+    function showSaveMsg() {
+        autoSaveMsg.innerHTML = "✅ Guardado " + new Date().toLocaleTimeString();
+        setTimeout(() => {
+            if(autoSaveMsg) autoSaveMsg.innerHTML = "✅ Todos los cambios se guardan automáticamente por persona";
+        }, 1500);
+    }
+
+    // Cargar datos desde localStorage
+    function cargarDatos() {
+        const saved = localStorage.getItem("fuerzaMultiPersonas");
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                personas = data.personas;
+                currentPerson = data.currentPerson;
+                return true;
+            } catch(e) { console.warn(e); }
+        }
+        return false;
+    }
+
+    // Inicializar persona por defecto si no existe ninguna
+    function inicializarPersonaPorDefecto(nombre = "Atleta 1") {
+        const rmDefault = {
+            squat: 100,
+            hipthrust: 120,
+            military: 50,
+            bench: 80
+        };
+        const plan = generarPlanDesdeRM(rmDefault);
+        personas[nombre] = {
+            rm: { ...rmDefault },
+            plan: plan,
+            currentWeek: 1
+        };
+        if (!currentPerson) currentPerson = nombre;
+        guardarTodosLosDatos();
+        return nombre;
+    }
+
+    // Sincronizar inputs de RM con la persona actual
+    function cargarPersonaEnUI() {
+        if (!currentPerson || !personas[currentPerson]) {
+            if (Object.keys(personas).length === 0) {
+                inicializarPersonaPorDefecto();
+            } else {
+                currentPerson = Object.keys(personas)[0];
+            }
+        }
+        const persona = personas[currentPerson];
+        rmSquat.value = persona.rm.squat;
+        rmHip.value = persona.rm.hipthrust;
+        rmMilitary.value = persona.rm.military;
+        rmBench.value = persona.rm.bench;
+        renderizarTabla();
+        renderizarListaPersonas();
+    }
+
+    // Actualizar la lista de personas en el panel superior
+    function renderizarListaPersonas() {
+        personListContainer.innerHTML = "";
+        const nombres = Object.keys(personas);
+        if (nombres.length === 0) {
+            personListContainer.innerHTML = "<span>Sin personas. Añade una.</span>";
+            return;
+        }
+        nombres.forEach(nombre => {
+            const wrapper = document.createElement("div");
+            wrapper.style.display = "inline-flex";
+            wrapper.style.alignItems = "center";
+            wrapper.style.gap = "4px";
+            wrapper.style.backgroundColor = currentPerson === nombre ? "#2c7da0" : "#e2edf2";
+            wrapper.style.padding = "4px 8px 4px 12px";
+            wrapper.style.borderRadius = "30px";
+            wrapper.style.cursor = "pointer";
+            wrapper.addEventListener("click", (e) => {
+                if (e.target.tagName !== 'BUTTON') {
+                    currentPerson = nombre;
+                    cargarPersonaEnUI();
+                    guardarTodosLosDatos();
+                }
+            });
+            const span = document.createElement("span");
+            span.innerText = nombre;
+            span.style.color = currentPerson === nombre ? "white" : "#1e2f4e";
+            wrapper.appendChild(span);
+            if (nombres.length > 1) {
+                const btnDel = document.createElement("button");
+                btnDel.innerText = "✖";
+                btnDel.style.background = "transparent";
+                btnDel.style.border = "none";
+                btnDel.style.color = currentPerson === nombre ? "#ffc9c9" : "#b33";
+                btnDel.style.fontSize = "12px";
+                btnDel.style.marginLeft = "4px";
+                btnDel.style.cursor = "pointer";
+                btnDel.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    if (confirm(`¿Eliminar a ${nombre}? Se perderán todos sus datos.`)) {
+                        delete personas[nombre];
+                        if (currentPerson === nombre) {
+                            const restantes = Object.keys(personas);
+                            currentPerson = restantes.length > 0 ? restantes[0] : null;
+                        }
+                        guardarTodosLosDatos();
+                        if (Object.keys(personas).length === 0) {
+                            inicializarPersonaPorDefecto();
+                        }
+                        cargarPersonaEnUI();
+                        renderizarListaPersonas();
+                    }
+                });
+                wrapper.appendChild(btnDel);
+            }
+            personListContainer.appendChild(wrapper);
+        });
+    }
+
+    // Renderizar tabla de la semana actual de la persona actual
+    function renderizarTabla() {
+        if (!currentPerson || !personas[currentPerson]) return;
+        const persona = personas[currentPerson];
+        const plan = persona.plan;
+        if (!plan || plan.length === 0) return;
+        const semanaIndex = persona.currentWeek - 1;
+        if (semanaIndex < 0 || semanaIndex >= plan.length) return;
+        const semana = plan[semanaIndex];
+        tableBody.innerHTML = "";
+        for (let ex of semana.exercises) {
+            const fila = document.createElement("tr");
+            // Nombre
+            const tdName = document.createElement("td");
+            tdName.innerText = ex.name;
+            tdName.style.fontWeight = "500";
+            fila.appendChild(tdName);
+            // Series plan
+            const tdSets = document.createElement("td");
+            tdSets.innerText = ex.plannedSets;
+            fila.appendChild(tdSets);
+            // Reps plan
+            const tdReps = document.createElement("td");
+            tdReps.innerText = ex.plannedReps;
+            fila.appendChild(tdReps);
+            // Peso plan
+            const tdPesoPlan = document.createElement("td");
+            tdPesoPlan.innerText = ex.plannedWeight + " kg";
+            fila.appendChild(tdPesoPlan);
+            
+            // Completado (select)
+            const tdComple = document.createElement("td");
+            const select = document.createElement("select");
+            select.style.padding = "4px 8px";
+            select.style.borderRadius = "20px";
+            const opciones = [
+                { value: "", text: "⚪ Sin marcar" },
+                { value: "true", text: "✅ Sí" },
+                { value: "false", text: "❌ No" }
+            ];
+            opciones.forEach(opt => {
+                const option = document.createElement("option");
+                option.value = opt.value;
+                option.innerText = opt.text;
+                if ((ex.completed === true && opt.value === "true") || (ex.completed === false && opt.value === "false") || (ex.completed === null && opt.value === ""))
+                    option.selected = true;
+                select.appendChild(option);
+            });
+            select.addEventListener("change", (function(ej, exId, semanaIdx, semanaNum, tipoEj) {
+                return function(e) {
+                    const val = e.target.value;
+                    if (val === "true") ej.completed = true;
+                    else if (val === "false") ej.completed = false;
+                    else ej.completed = null;
+                    
+                    if (ej.completed === false) {
+                        const ajuste = (tipoEj === 'lower' ? 5 : 2.5);
+                        const personaActual = personas[currentPerson];
+                        for (let w = semanaIdx+1; w < personaActual.plan.length; w++) {
+                            const exFuturo = personaActual.plan[w].exercises.find(e => e.id === exId);
+                            if (exFuturo) {
+                                let nuevoPeso = exFuturo.plannedWeight - ajuste;
+                                const rmActual = personaActual.rm[exId];
+                                const minimo = Math.round((rmActual * 0.45) / 2.5) * 2.5;
+                                if (nuevoPeso < minimo) nuevoPeso = minimo;
+                                exFuturo.plannedWeight = Math.round(nuevoPeso / 2.5) * 2.5;
+                                exFuturo.notes = `Ajuste -${ajuste}kg por fallo semana ${semanaNum}`;
+                            }
+                        }
+                    }
+                    guardarTodosLosDatos();
+                    renderizarTabla();
+                };
+            })(ex, ex.id, semanaIndex, persona.currentWeek, ex.tipo));
+            tdComple.appendChild(select);
+            fila.appendChild(tdComple);
+            
+            // Peso real
+            const tdPesoReal = document.createElement("td");
+            const inputPeso = document.createElement("input");
+            inputPeso.type = "number";
+            inputPeso.step = "2.5";
+            inputPeso.value = ex.actualWeight !== null ? ex.actualWeight : "";
+            inputPeso.placeholder = "kg";
+            inputPeso.style.width = "70px";
+            inputPeso.addEventListener("change", (function(ej, inp) { return function() { ej.actualWeight = parseFloat(inp.value) || null; guardarTodosLosDatos(); }; })(ex, inputPeso));
+            tdPesoReal.appendChild(inputPeso);
+            fila.appendChild(tdPesoReal);
+            
+            // Reps reales
+            const tdRepsReal = document.createElement("td");
+            const inputReps = document.createElement("input");
+            inputReps.type = "number";
+            inputReps.step = "1";
+            inputReps.value = ex.actualReps !== null ? ex.actualReps : "";
+            inputReps.style.width = "60px";
+            inputReps.addEventListener("change", (function(ej, inp) { return function() { ej.actualReps = parseInt(inp.value) || null; guardarTodosLosDatos(); }; })(ex, inputReps));
+            tdRepsReal.appendChild(inputReps);
+            fila.appendChild(tdRepsReal);
+            
+            // RPE
+            const tdRpe = document.createElement("td");
+            const inputRpe = document.createElement("input");
+            inputRpe.type = "number";
+            inputRpe.step = "0.5";
+            inputRpe.min = "1";
+            inputRpe.max = "10";
+            inputRpe.value = ex.rpe !== null ? ex.rpe : "";
+            inputRpe.style.width = "55px";
+            inputRpe.addEventListener("change", (function(ej, inp) { return function() { ej.rpe = parseFloat(inp.value) || null; guardarTodosLosDatos(); }; })(ex, inputRpe));
+            tdRpe.appendChild(inputRpe);
+            fila.appendChild(tdRpe);
+            
+            // Notas
+            const tdNotes = document.createElement("td");
+            const inputNotes = document.createElement("input");
+            inputNotes.type = "text";
+            inputNotes.placeholder = "nota";
+            inputNotes.value = ex.notes || "";
+            inputNotes.style.width = "100px";
+            inputNotes.addEventListener("change", (function(ej, inp) { return function() { ej.notes = inp.value; guardarTodosLosDatos(); }; })(ex, inputNotes));
+            tdNotes.appendChild(inputNotes);
+            fila.appendChild(tdNotes);
+            
+            tableBody.appendChild(fila);
+        }
+        semanaDisplay.innerText = `Semana ${persona.currentWeek} / ${TOTAL_WEEKS}`;
+    }
+
+    // Cambiar semana para la persona actual
+    function cambiarSemana(delta) {
+        if (!currentPerson || !personas[currentPerson]) return;
+        const persona = personas[currentPerson];
+        let nueva = persona.currentWeek + delta;
+        if (nueva < 1) nueva = 1;
+        if (nueva > TOTAL_WEEKS) nueva = TOTAL_WEEKS;
+        if (nueva !== persona.currentWeek) {
+            persona.currentWeek = nueva;
+            const rmActual = persona.rm;
+            persona.plan = ajustarPlanPorFallos(persona.plan, rmActual, nueva);
+            guardarTodosLosDatos();
+            renderizarTabla();
+        } else {
+            renderizarTabla();
+        }
+    }
+
+    // Generar nuevo plan para la persona actual (con los RM actuales de los inputs)
+    function regenerarPlanParaPersonaActual() {
+        if (!currentPerson) return;
+        const nuevosRM = {
+            squat: parseFloat(rmSquat.value) || 100,
+            hipthrust: parseFloat(rmHip.value) || 120,
+            military: parseFloat(rmMilitary.value) || 50,
+            bench: parseFloat(rmBench.value) || 80
+        };
+        const nuevoPlan = generarPlanDesdeRM(nuevosRM);
+        personas[currentPerson].rm = nuevosRM;
+        personas[currentPerson].plan = nuevoPlan;
+        personas[currentPerson].currentWeek = 1;
+        guardarTodosLosDatos();
+        cargarPersonaEnUI();
+    }
+
+    // Reiniciar datos de la persona actual (borra el progreso, pero mantiene los 1RM actuales)
+    function resetPersonaActual() {
+        if (!currentPerson) return;
+        if (confirm(`¿Borrar todo el progreso de ${currentPerson}? Se mantendrán sus 1RM actuales.`)) {
+            const rmActual = personas[currentPerson].rm;
+            const nuevoPlan = generarPlanDesdeRM(rmActual);
+            personas[currentPerson].plan = nuevoPlan;
+            personas[currentPerson].currentWeek = 1;
+            guardarTodosLosDatos();
+            renderizarTabla();
+        }
+    }
+
+    // Añadir nueva persona
+    function addPersona() {
+        const nombreInput = document.getElementById("newPersonName");
+        let nombre = nombreInput.value.trim();
+        if (!nombre) nombre = "Persona " + (Object.keys(personas).length + 1);
+        if (personas[nombre]) {
+            alert("Ya existe una persona con ese nombre");
+            return;
+        }
+        const rmDefault = {
+            squat: 100,
+            hipthrust: 120,
+            military: 50,
+            bench: 80
+        };
+        const plan = generarPlanDesdeRM(rmDefault);
+        personas[nombre] = {
+            rm: { ...rmDefault },
+            plan: plan,
+            currentWeek: 1
+        };
+        currentPerson = nombre;
+        guardarTodosLosDatos();
+        cargarPersonaEnUI();
+        nombreInput.value = "";
+        renderizarListaPersonas();
+    }
+
+    // Eventos y carga inicial
+    document.addEventListener("DOMContentLoaded", () => {
+        const loaded = cargarDatos();
+        if (!loaded || Object.keys(personas).length === 0) {
+            inicializarPersonaPorDefecto();
+        }
+        if (!currentPerson && Object.keys(personas).length) currentPerson = Object.keys(personas)[0];
+        cargarPersonaEnUI();
+        renderizarListaPersonas();
+
+        generarBtn.addEventListener("click", () => {
+            if (confirm("¿Generar nuevo plan para esta persona? Se perderá su progreso actual.")) {
+                regenerarPlanParaPersonaActual();
+            }
+        });
+        prevWeekBtn.addEventListener("click", () => cambiarSemana(-1));
+        nextWeekBtn.addEventListener("click", () => cambiarSemana(1));
+        resetPersonBtn.addEventListener("click", resetPersonaActual);
+        document.getElementById("addPersonBtn").addEventListener("click", addPersona);
+    });
+</script>
+</body>
+</html>
